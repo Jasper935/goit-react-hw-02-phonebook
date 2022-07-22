@@ -1,48 +1,60 @@
-import { Component } from "react"
-import { Input } from "./Input/Input";
-import { Form } from "../components/Form/Form";
-import {Section} from "./Section/Section";
-import { Button } from "./Button/Button";
-import { ContsctsList } from "./ContactsList/ContactsList";
-export class App  extends Component{
+import { Component } from 'react';
+import { Filter } from './Filter/Filter';
+import { Form } from '../components/Form/Form';
+import { Section } from './Section/Section';
 
+import { ContactsList } from './ContactsList/ContactsList';
+export class App extends Component {
   state = {
-    contacts: [
-      {id: 'id-1', name: 'Rosie Simpson', number: '459-12-56'},
-      {id: 'id-2', name: 'Hermione Kline', number: '443-89-12'},
-      {id: 'id-3', name: 'Eden Clements', number: '645-17-79'},
-      {id: 'id-4', name: 'Annie Copeland', number: '227-91-26'},
-    ],
+    contacts: [],
     filter: '',
-    name: '',
-    number: ''
+  };
+
+  addContactsData = contact => {
+    const{contacts}=this.state
+    if(contacts.some(el=>el.name.toLowerCase()===contact.name.toLowerCase())){
+      alert(`${contact.name} is already in contacts`)
+      return
+    }
+    this.setState(prevState => ({
+      contacts: [...prevState.contacts, contact],
+    }));
+  };
+
+  onChangeFilter = ({ target: { value } }) => {
+    
+    this.setState({
+      filter: value,
+    });
+  };
+
+  onDelete=(id)=>{
+    this.setState(prev=>({
+      contacts: prev.contacts.filter(el=>el.id!==id)
+    }))
+    
   }
 
-  
-pattern = "\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
 
 
+  filterContacts=()=>{
+    
+   const{filter, contacts}= this.state
+   return contacts.filter((el)=>el.name.toLowerCase().includes(filter.toLowerCase()))
+  }
 
-
-
-
-
-render() { return (
- <>
-  <Section title={'PhoneBook'}>
-    <Form>
-<Input name={'Name'} pattern={this.pattern}/>
-<Input name={'Number'}/>
-
-<Button name={"Add contact"}/>
-    </Form>
-  </Section>
-  <Section title={'Contacts'}>
-  <Form>
-  <Input name={'Find contacts by name'}/>
-  <ContsctsList contacts={this.state.contacts}/>
-  </Form>
-  </Section>
-  </>
-  );}
-};
+  render() {
+    
+    return (
+      <>
+        <Section title={'PhoneBook'}>
+          <Form addContactsData={this.addContactsData} />
+        </Section>
+        <Section title={'Contacts'}>
+          <Filter  onChange={this.onChangeFilter} />
+          <ContactsList contacts={this.filterContacts()} onDelete={this.onDelete} />
+        </Section>
+      </>
+    );
+  }
+}
